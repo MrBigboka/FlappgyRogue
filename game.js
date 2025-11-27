@@ -79,6 +79,7 @@ class Game {
         this.slowTimeActive = false;
         this.slowTimeTimer = 0;
         this.invulnerableTimer = 0;
+        this.milestoneTimer = 0;
         
         // Juice effects
         this.screenShake = 0;
@@ -671,6 +672,11 @@ class Game {
             this.invulnerableTimer--;
         }
         
+        // Update milestone timer
+        if (this.milestoneTimer > 0) {
+            this.milestoneTimer--;
+        }
+        
         // Update world transition timer
         if (this.worldTransitionTimer > 0) {
             this.worldTransitionTimer--;
@@ -724,8 +730,21 @@ class Game {
                 const basePoints = this.upgrades.doubleScore ? 2 : 1;
                 const comboBonus = Math.floor(this.combo / 3);
                 const points = basePoints + comboBonus;
+                const oldScore = this.score;
                 this.score += points;
                 this.playSound('score');
+                
+                // Check for 100 score milestone - give extra life!
+                const oldMilestone = Math.floor(oldScore / 100);
+                const newMilestone = Math.floor(this.score / 100);
+                if (newMilestone > oldMilestone) {
+                    this.maxHealth++;
+                    this.health = this.maxHealth;
+                    this.milestoneTimer = 180; // 3 seconds shiny effect
+                    this.playSound('oneup');
+                    this.createParticles(this.bird.x, this.bird.y, 30, '#ffd700');
+                    this.createParticles(this.bird.x, this.bird.y, 20, '#ff69b4');
+                }
                 
                 // Visual feedback
                 this.createParticles(this.bird.x + 30, this.bird.y, 3, '#ffd700');
@@ -1186,18 +1205,42 @@ class Game {
         // Draw invincibility indicator
         if (this.invulnerableTimer > 60 && this.state === 'playing') {
             const pulse = Math.sin(Date.now() * 0.015) * 0.2 + 0.3;
-            this.ctx.fillStyle = `rgba(255, 215, 0, ${pulse})`;
-            this.ctx.strokeStyle = '#ffd700';
+            this.ctx.strokeStyle = `rgba(255, 215, 0, ${pulse + 0.5})`;
             this.ctx.lineWidth = 4;
             this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+        
+        // Draw milestone celebration (100 score = +1 life)
+        if (this.milestoneTimer > 0) {
+            const progress = this.milestoneTimer / 180;
+            const pulse = Math.sin(Date.now() * 0.02) * 0.5 + 0.5;
             
-            // Invincibility timer bar at top
-            const barWidth = 150;
-            const progress = this.invulnerableTimer / 300;
-            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-            this.ctx.fillRect(this.canvas.width / 2 - barWidth / 2 - 2, 8, barWidth + 4, 12);
-            this.ctx.fillStyle = '#ffd700';
-            this.ctx.fillRect(this.canvas.width / 2 - barWidth / 2, 10, barWidth * progress, 8);
+            // Rainbow shiny border
+            const hue = (Date.now() * 0.5) % 360;
+            this.ctx.strokeStyle = `hsla(${hue}, 100%, 60%, ${progress})`;
+            this.ctx.lineWidth = 8 + pulse * 4;
+            this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height);
+            
+            // Big announcement text
+            this.ctx.save();
+            this.ctx.fillStyle = `hsla(${hue}, 100%, 70%, ${progress})`;
+            this.ctx.strokeStyle = `rgba(0, 0, 0, ${progress})`;
+            this.ctx.lineWidth = 4;
+            this.ctx.font = `bold ${40 + pulse * 10}px Arial`;
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            
+            const text = '🎉 +1 VIE! 🎉';
+            const y = this.canvas.height / 2 - 50 + (1 - progress) * 30;
+            this.ctx.strokeText(text, this.canvas.width / 2, y);
+            this.ctx.fillText(text, this.canvas.width / 2, y);
+            
+            // Show milestone reached
+            const milestone = Math.floor(this.score / 100) * 100;
+            this.ctx.font = 'bold 24px Arial';
+            this.ctx.fillStyle = `rgba(255, 255, 255, ${progress})`;
+            this.ctx.fillText(`${milestone} POINTS!`, this.canvas.width / 2, y + 50);
+            this.ctx.restore();
         }
         
         // Draw active upgrades icons
