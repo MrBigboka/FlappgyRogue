@@ -22,23 +22,39 @@
                 </div>
             </div>
             <button id="start-btn">Start Run</button>
+            <button id="guide-btn" style="margin-top: 10px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">How to Play</button>
+            
+            <div class="mode-selector" style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
+                <button id="mode-pc-btn" class="mode-btn active" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">🖥️ PC</button>
+                <button id="mode-mobile-btn" class="mode-btn" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">📱 Mobile</button>
+                <button id="mode-fullscreen-btn" class="mode-btn" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">⛶ Fullscreen</button>
+            </div>
+            <p id="current-mode" style="color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 5px;">Mode: PC</p>
+            
             <p class="controls-hint">Press SPACE or Click to flap</p>
+        </div>
+
+        <div id="guide-screen" class="hidden">
+            <div class="guide-content">
+                <h2>📖 Rogue Guide</h2>
+                <p><strong>What is a Rogue-like?</strong><br>Every run is unique! Every 5 pipes, you choose a PERMANENT upgrade. If you die, you start fresh.</p>
+                <h3>Power-ups:</h3>
+                <ul class="guide-list">
+                    <li>❤️ <strong>Extra Heart:</strong> +1 Max HP (Permanent)</li>
+                    <li>🛡️ <strong>Shield:</strong> Blocks ONE hit. Find ⭐ to restore.</li>
+                    <li>⏱️ <strong>Slow Mo:</strong> Game is 15% slower forever.</li>
+                    <li>🧲 <strong>Magnet:</strong> Attracts items from further away.</li>
+                    <li>✨ <strong>Double Score:</strong> 2x points per pipe.</li>
+                    <li>🔬 <strong>Shrink:</strong> 30% smaller bird hitbox.</li>
+                    <li>🪶 <strong>Feather:</strong> Low gravity, floaty jumps.</li>
+                    <li>↕️ <strong>Wide Gaps:</strong> Bigger space between pipes.</li>
+                </ul>
+                <button id="close-guide-btn">Close</button>
+            </div>
         </div>
 
         <div id="game-screen" class="hidden">
             <canvas id="game-canvas"></canvas>
-            <div id="game-ui">
-                <div id="score-display">
-                    <span id="current-score">0</span>
-                </div>
-                <div id="powerups-display"></div>
-                <div id="health-display"></div>
-            </div>
-        </div>
-
-        <div id="upgrade-screen" class="hidden">
-            <h2>⬆️ Choose an Upgrade</h2>
-            <div id="upgrade-options"></div>
         </div>
 
         <div id="gameover-screen" class="hidden">
