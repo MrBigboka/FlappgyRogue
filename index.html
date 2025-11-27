@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird Rogue-like</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="menu-screen">
+            <h1>🐦 Flappy Rogue</h1>
+            <p class="subtitle">A Rogue-like Flappy Adventure</p>
+            <div class="stats-display">
+                <div class="stat">
+                    <span class="stat-label">High Score</span>
+                    <span id="high-score">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Total Runs</span>
+                    <span id="total-runs">0</span>
+                </div>
+            </div>
+            <button id="start-btn">Start Run</button>
+            <p class="controls-hint">Press SPACE or Click to flap</p>
+        </div>
+
+        <div id="game-screen" class="hidden">
+            <canvas id="game-canvas"></canvas>
+            <div id="game-ui">
+                <div id="score-display">
+                    <span id="current-score">0</span>
+                </div>
+                <div id="powerups-display"></div>
+                <div id="health-display"></div>
+            </div>
+        </div>
+
+        <div id="upgrade-screen" class="hidden">
+            <h2>⬆️ Choose an Upgrade</h2>
+            <div id="upgrade-options"></div>
+        </div>
+
+        <div id="gameover-screen" class="hidden">
+            <h2>💀 Game Over</h2>
+            <div class="final-stats">
+                <p>Score: <span id="final-score">0</span></p>
+                <p>Pipes Passed: <span id="pipes-passed">0</span></p>
+                <p>Power-ups Collected: <span id="powerups-collected">0</span></p>
+            </div>
+            <button id="restart-btn">Try Again</button>
+            <button id="menu-btn">Main Menu</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
