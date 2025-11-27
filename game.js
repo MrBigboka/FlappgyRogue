@@ -657,8 +657,18 @@ class Game {
         // Game continues during upgrade selection!
         if (this.state !== 'playing') return;
         
+        // Calculate time scale with gradual transition
         let timeScale = 1;
-        if (this.slowTimeActive) timeScale = 0.5;
+        if (this.slowTimeActive) {
+            // Gradual return to normal speed in last 60 frames (1 second)
+            if (this.slowTimeTimer <= 60) {
+                // Ease from 0.5 to 1.0 over 60 frames
+                const progress = 1 - (this.slowTimeTimer / 60);
+                timeScale = 0.5 + (0.5 * progress);
+            } else {
+                timeScale = 0.5;
+            }
+        }
         
         // Update slow time
         if (this.slowTimeActive) {
