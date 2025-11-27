@@ -107,10 +107,11 @@ class Game {
         
         // Power-up types that spawn in game
         this.powerupTypes = [
-            { type: 'coin', icon: '🪙', color: '#ffd700' },
-            { type: 'heart', icon: '❤️', color: '#e74c3c' },
-            { type: 'star', icon: '⭐', color: '#f39c12' },
-            { type: 'clock', icon: '⏰', color: '#3498db' }
+            { type: 'coin', icon: '🪙', color: '#ffd700', weight: 40 },
+            { type: 'heart', icon: '❤️', color: '#e74c3c', weight: 25 },
+            { type: 'star', icon: '⭐', color: '#f39c12', weight: 15 },
+            { type: 'shield', icon: '🛡️', color: '#3498db', weight: 15 },
+            { type: 'clock', icon: '⏰', color: '#9b59b6', weight: 5 }
         ];
         
         // World/Environment system
@@ -864,7 +865,18 @@ class Game {
     }
     
     spawnPowerup(x, y) {
-        const type = this.powerupTypes[Math.floor(Math.random() * this.powerupTypes.length)];
+        // Weighted random selection
+        const totalWeight = this.powerupTypes.reduce((sum, p) => sum + p.weight, 0);
+        let roll = Math.random() * totalWeight;
+        let type = this.powerupTypes[0];
+        for (const p of this.powerupTypes) {
+            roll -= p.weight;
+            if (roll <= 0) {
+                type = p;
+                break;
+            }
+        }
+        
         this.powerups.push({
             x: x,
             y: y,
@@ -939,14 +951,16 @@ class Game {
                 }
                 break;
             case 'star':
-                this.score += 10 * scoreMultiplier;
+                this.score += 15 * scoreMultiplier;
+                this.invulnerableTimer = 120; // 2 seconds invincibility
+                break;
+            case 'shield':
                 this.shieldActive = true;
-                this.invulnerableTimer = 30; // Brief invuln on pickup
-                this.updateHealthDisplay();
+                this.createParticles(this.bird.x, this.bird.y, 10, '#3498db');
                 break;
             case 'clock':
                 this.slowTimeActive = true;
-                this.slowTimeTimer = 360; // 6 seconds at 60fps
+                this.slowTimeTimer = 240; // 4 seconds (reduced from 6)
                 break;
         }
     }
@@ -1144,30 +1158,29 @@ class Game {
             this.ctx.fillText(`Combo x${this.combo}`, this.canvas.width - 20, 60);
         }
         
-        // Draw slow motion bar (bottom of screen, non-intrusive)
+        // Draw slow motion indicator (small, bottom right corner)
         if (this.slowTimeActive && (this.state === 'playing' || this.state === 'countdown')) {
-            const barWidth = 200;
-            const barHeight = 8;
-            const barX = (this.canvas.width - barWidth) / 2;
-            const barY = this.canvas.height - 40;
-            const progress = this.slowTimeTimer / 360;
+            const barWidth = 100;
+            const barHeight = 6;
+            const barX = this.canvas.width - barWidth - 15;
+            const barY = this.canvas.height - 70;
+            const progress = this.slowTimeTimer / 240;
             
-            // Background
+            // Small icon and bar
             this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-            this.ctx.fillRect(barX - 2, barY - 2, barWidth + 4, barHeight + 4);
+            this.ctx.beginPath();
+            this.ctx.roundRect(barX - 25, barY - 8, barWidth + 30, barHeight + 16, 8);
+            this.ctx.fill();
+            
+            // Icon
+            this.ctx.font = '14px Arial';
+            this.ctx.fillText('⏰', barX - 18, barY + 5);
             
             // Progress bar
-            const gradient = this.ctx.createLinearGradient(barX, 0, barX + barWidth, 0);
-            gradient.addColorStop(0, '#3498db');
-            gradient.addColorStop(1, '#9b59b6');
-            this.ctx.fillStyle = gradient;
-            this.ctx.fillRect(barX, barY, barWidth * progress, barHeight);
-            
-            // Label
-            this.ctx.fillStyle = 'white';
-            this.ctx.font = 'bold 12px Arial';
-            this.ctx.textAlign = 'center';
-            this.ctx.fillText('⏱️ SLOW MOTION', this.canvas.width / 2, barY - 8);
+            this.ctx.fillStyle = '#9b59b6';
+            this.ctx.beginPath();
+            this.ctx.roundRect(barX, barY, barWidth * progress, barHeight, 3);
+            this.ctx.fill();
         }
         
         // Draw invincibility indicator
